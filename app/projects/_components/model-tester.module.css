@@ -1,0 +1,600 @@
+.workspace {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 28px;
+  min-height: calc(100vh - 62px);
+  padding: 28px clamp(20px, 3vw, 56px) 56px;
+  background:
+    radial-gradient(circle at 78% 6%, rgba(20, 207, 201, 0.14), transparent 28rem),
+    linear-gradient(to right, rgba(15, 23, 42, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 23, 42, 0.035) 1px, transparent 1px),
+    #ffffff;
+  background-size: auto, 76px 76px, 76px 76px, auto;
+}
+
+.sidebar {
+  position: sticky;
+  top: 90px;
+  align-self: start;
+  overflow: hidden;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.06);
+  backdrop-filter: blur(18px);
+}
+
+.sidebarHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.sidebarHead span,
+.eyebrow,
+.keyHint {
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.sidebarHead strong {
+  display: block;
+  margin-top: 4px;
+  color: #020617;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.sideNav {
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+}
+
+.sideNav a {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  padding: 0 11px;
+  border-radius: 9px;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 800;
+  transition:
+    background 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.sideNav a:hover {
+  color: #020617;
+  background: rgba(15, 23, 42, 0.05);
+  transform: translateX(2px);
+}
+
+.content {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+}
+
+.hero,
+.notice,
+.panel,
+.panelWide,
+.statCard {
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.05);
+}
+
+.hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: clamp(24px, 4vw, 46px);
+}
+
+.hero h1 {
+  margin: 8px 0 10px;
+  color: #020617;
+  font-size: clamp(36px, 5vw, 68px);
+  font-weight: 950;
+  letter-spacing: 0;
+  line-height: 0.96;
+}
+
+.hero p {
+  max-width: 720px;
+  margin: 0;
+  color: rgba(15, 23, 42, 0.62);
+  font-size: 16px;
+  font-weight: 650;
+  line-height: 1.7;
+}
+
+.primaryButton,
+.smallButton,
+.toggleButton,
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 999px;
+  font-weight: 850;
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    background 160ms ease;
+}
+
+.primaryButton {
+  min-width: 164px;
+  height: 46px;
+  padding: 0 20px;
+  color: #ffffff;
+  background: #020617;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.16);
+}
+
+.primaryButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.smallButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.smallButton,
+.toggleButton {
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  color: #020617;
+  background: #ffffff;
+  font-size: 12px;
+}
+
+.smallButton:hover,
+.toggleButton:hover,
+.primaryButton:hover {
+  transform: translateY(-1px);
+}
+
+.iconButton {
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  color: #475569;
+  background: #ffffff;
+}
+
+.notice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  color: #0f766e;
+  background: rgba(236, 254, 255, 0.82);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.statCard {
+  display: grid;
+  gap: 12px;
+  min-height: 132px;
+  padding: 20px;
+}
+
+.statCard span,
+.panelTitle h2 {
+  margin: 0;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.statCard strong {
+  color: #020617;
+  font-size: 30px;
+  font-weight: 950;
+}
+
+.statCard small {
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.chartGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.62fr);
+  gap: 14px;
+}
+
+.panel,
+.panelWide {
+  min-width: 0;
+  padding: 18px;
+}
+
+.panelWide {
+  grid-column: 1 / -1;
+}
+
+.panelTitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.panelActions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.panelActions .primaryButton {
+  min-width: 126px;
+  height: 36px;
+  padding: 0 15px;
+  font-size: 12px;
+}
+
+.chart {
+  width: 100%;
+  height: 290px;
+}
+
+.apiList {
+  display: grid;
+  gap: 12px;
+}
+
+.apiCard {
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr 1fr auto;
+  gap: 12px;
+  align-items: end;
+  padding: 14px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 10px;
+  background: rgba(248, 250, 252, 0.72);
+}
+
+.apiActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 20px;
+}
+
+.apiCard .keyHint {
+  grid-column: 1 / -1;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.apiCard label,
+.promptBox,
+.configGrid label {
+  display: grid;
+  gap: 8px;
+}
+
+.apiCard label span,
+.promptBox span,
+.configGrid label span {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.apiCard input,
+.inlineControls input,
+.inlineControls select,
+.promptBox textarea,
+.configGrid input {
+  width: 100%;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 8px;
+  color: #020617;
+  background: #ffffff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 650;
+  outline: none;
+}
+
+.apiCard input,
+.inlineControls input,
+.inlineControls select,
+.configGrid input {
+  height: 38px;
+  padding: 0 11px;
+}
+
+.apiCard input:focus,
+.inlineControls input:focus,
+.inlineControls select:focus,
+.promptBox textarea:focus,
+.configGrid input:focus {
+  border-color: rgba(20, 207, 201, 0.76);
+  box-shadow: 0 0 0 3px rgba(20, 207, 201, 0.12);
+}
+
+.inlineControls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.modelList {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.modelItem {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 13px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 10px;
+  background: rgba(248, 250, 252, 0.7);
+}
+
+.modelItem input {
+  accent-color: #111827;
+}
+
+.modelItem strong {
+  display: block;
+  color: #020617;
+  font-size: 14px;
+}
+
+.modelItem small {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.testGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.65fr);
+  gap: 14px;
+}
+
+.promptBox textarea {
+  min-height: 180px;
+  resize: vertical;
+  padding: 12px;
+  line-height: 1.65;
+}
+
+.configGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  align-content: start;
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.tableWrap table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+}
+
+.tableWrap th,
+.tableWrap td {
+  padding: 13px 12px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  color: #334155;
+  font-size: 13px;
+  font-weight: 750;
+  text-align: left;
+}
+
+.tableWrap th {
+  color: #64748b;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.ok {
+  color: #14b8a6;
+}
+
+.fail {
+  color: #0f172a;
+}
+
+.empty {
+  margin: 0;
+  padding: 18px;
+  border: 1px dashed rgba(15, 23, 42, 0.16);
+  border-radius: 10px;
+  color: #64748b;
+  background: rgba(248, 250, 252, 0.7);
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.drawerOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  justify-content: flex-end;
+  background: rgba(15, 23, 42, 0.24);
+  backdrop-filter: blur(8px);
+}
+
+.drawer {
+  width: min(620px, 100%);
+  height: 100%;
+  overflow: auto;
+  padding: 24px;
+  background: #ffffff;
+  box-shadow: -24px 0 70px rgba(15, 23, 42, 0.14);
+}
+
+.drawerHeader {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.drawerHeader span {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.drawerHeader h2 {
+  margin: 4px 0 0;
+  color: #020617;
+  font-size: 30px;
+  font-weight: 950;
+}
+
+.detailStats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 20px 0;
+}
+
+.detailStats span {
+  padding: 8px 10px;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 999px;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.drawer h3 {
+  margin: 22px 0 10px;
+  color: #020617;
+  font-size: 15px;
+}
+
+.drawer pre {
+  overflow: auto;
+  max-height: 320px;
+  margin: 0;
+  padding: 14px;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 10px;
+  background: #f8fafc;
+  color: #0f172a;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.spin {
+  animation: spin 900ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 1180px) {
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: relative;
+    top: 0;
+  }
+
+  .sideNav {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .statsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .apiCard {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .workspace {
+    padding: 16px 14px 40px;
+  }
+
+  .hero {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .primaryButton {
+    width: 100%;
+  }
+
+  .sideNav,
+  .statsGrid,
+  .chartGrid,
+  .apiCard,
+  .modelList,
+  .testGrid,
+  .configGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .sideNav a {
+    min-height: 38px;
+  }
+
+  .apiActions,
+  .inlineControls,
+  .panelActions {
+    justify-content: flex-start;
+  }
+
+  .panelTitle {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
