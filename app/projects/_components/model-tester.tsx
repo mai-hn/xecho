@@ -1,12 +1,13 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { EChartsOption } from 'echarts';
 import {
   Activity,
   BarChart3,
   Bot,
   CheckCircle2,
+  ChevronDown,
   ChevronRight,
   Eye,
   KeyRound,
@@ -22,40 +23,18 @@ import {
   XCircle,
 } from 'lucide-react';
 
+import {
+  groupModelsByChannel,
+  groupResultsByChannel,
+  type ChannelConfig,
+  type ChannelModel,
+  type ChannelTestResult,
+} from './model-tester-groups';
 import styles from './model-tester.module.css';
 
-type ApiConfig = {
-  id: string;
-  name: string;
-  baseUrl: string;
-  apiKey: string;
-  enabled: boolean;
-};
-
-type ModelConfig = {
-  id: string;
-  apiId: string;
-  name: string;
-  context: number;
-  enabled: boolean;
-};
-
-type TestResult = {
-  id: string;
-  apiId: string;
-  apiName: string;
-  model: string;
-  ok: boolean;
-  latencyMs: number;
-  statusCode?: number;
-  promptTokens?: number;
-  completionTokens?: number;
-  totalTokens?: number;
-  request: unknown;
-  response: unknown;
-  error?: string;
-  createdAt: string;
-};
+type ApiConfig = ChannelConfig;
+type ModelConfig = ChannelModel;
+type TestResult = ChannelTestResult;
 
 type BackendApi = {
   id: string;
@@ -63,6 +42,8 @@ type BackendApi = {
   base_url: string;
   api_key: string;
   enabled: boolean;
+  created_at?: string;
+  updated_at?: string;
 };
 
 type BackendModel = {
@@ -71,6 +52,8 @@ type BackendModel = {
   name: string;
   context: number;
   enabled: boolean;
+  created_at?: string;
+  updated_at?: string;
 };
 
 type BackendResult = {
@@ -106,6 +89,8 @@ function toApi(api: BackendApi): ApiConfig {
     baseUrl: api.base_url,
     apiKey: api.api_key,
     enabled: api.enabled,
+    createdAt: api.created_at,
+    updatedAt: api.updated_at,
   };
 }
 
@@ -116,6 +101,8 @@ function toModel(model: BackendModel): ModelConfig {
     name: model.name,
     context: model.context,
     enabled: model.enabled,
+    createdAt: model.created_at,
+    updatedAt: model.updated_at,
   };
 }
 
@@ -147,6 +134,20 @@ function maskKey(key: string) {
 function formatNumber(value?: number) {
   if (value == null) return '--';
   return new Intl.NumberFormat('en-US').format(value);
+}
+
+function formatDate(value?: string) {
+  if (!value) return '--';
+  return new Intl.DateTimeFormat('zh-CN', { month: '2-digit', day: '2-digit', year: 'numeric' }).format(new Date(value));
+}
+
+function shortUrl(value: string) {
+  if (!value) return '未填写渠道地址';
+  try {
+    return new URL(value).host;
+  } catch {
+    return value.replace(/^https?:\/\//, '') || value;
+  }
 }
 
 async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
@@ -214,6 +215,8 @@ export function ModelTester() {
   const [testing, setTesting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [notice, setNotice] = useState('正在读取后端数据库...');
+  const [expandedModelChannels, setExpandedModelChannels] = useState<Record<string, boolean>>({});
+  const [expandedResultChannels, setExpandedResultChannels] = useState<Record<string, boolean>>({});
 
   const loadState = useCallback(async () => {
     setLoading(true);
@@ -245,6 +248,9 @@ export function ModelTester() {
     () => models.filter((model) => model.enabled && apis.some((api) => api.id === model.apiId && api.enabled)),
     [apis, models]
   );
+
+  const modelGroups = useMemo(() => groupModelsByChannel(apis, models), [apis, models]);
+  const resultGroups = useMemo(() => groupResultsByChannel(results), [results]);
 
   const summary = useMemo(() => {
     const total = results.length;
@@ -442,6 +448,14 @@ export function ModelTester() {
     }
   };
 
+  const toggleModelChannel = (id: string) => {
+    setExpandedModelChannels((items) => ({ ...items, [id]: !(items[id] ?? true) }));
+  };
+
+  const toggleResultChannel = (id: string) => {
+    setExpandedResultChannels((items) => ({ ...items, [id]: !(items[id] ?? true) }));
+  };
+
   const runTests = async () => {
     setTesting(true);
     setNotice(`开始批量测试 ${activeModels.length} 个模型...`);
@@ -458,7 +472,13 @@ export function ModelTester() {
         }),
       });
       const nextResults = payload.map(toResult);
-      setResults(nextResults);
+      setResults((items) => {
+        const byId = new Map<string, TestResult>();
+        for (const result of [...nextResults, ...items]) {
+          byId.set(result.id, result);
+        }
+        return Array.from(byId.values());
+      });
       setNotice(`测试完成，已写入数据库 ${nextResults.length} 条结果。`);
     } catch (error) {
       setNotice(error instanceof Error ? error.message : '测试失败，请确认 FastAPI 后端已启动。');
@@ -482,7 +502,7 @@ export function ModelTester() {
         <nav className={styles.sideNav} aria-label="project sections">
           {[
             ['概览图表', BarChart3],
-            ['API 密钥', KeyRound],
+            ['渠道配置', KeyRound],
             ['模型配置', Bot],
             ['批量测试', Rocket],
             ['结果详情', Eye],
@@ -504,7 +524,6 @@ export function ModelTester() {
           <div>
             <p className={styles.eyebrow}>OpenAI compatible benchmark</p>
             <h1>模型测试控制台</h1>
-            <p>所有 API、模型和测试结果都从 SQLModel 数据库读取；前端只负责编辑和触发请求。</p>
           </div>
           <button className={styles.primaryButton} disabled={testing || loading || !activeModels.length || !prompt.trim()} onClick={runTests}>
             {testing ? <Loader2 className={styles.spin} size={16} /> : <Rocket size={16} />}
@@ -534,7 +553,7 @@ export function ModelTester() {
             <small>prompt + completion</small>
           </article>
           <article className={styles.statCard}>
-            <span>API / 模型</span>
+            <span>渠道 / 模型</span>
             <strong>
               {apis.length} / {models.length}
             </strong>
@@ -566,53 +585,126 @@ export function ModelTester() {
           </article>
         </section>
 
-        <section id="API 密钥" className={styles.panel}>
+        <section id="渠道配置" className={styles.panel}>
           <div className={styles.panelTitle}>
-            <h2>API 地址和密钥</h2>
+            <h2>渠道配置</h2>
             <button className={styles.smallButton} onClick={addApi}>
-              <Plus size={14} /> 添加 API
+              <Plus size={14} /> 添加渠道
             </button>
           </div>
-          <div className={styles.apiList}>
-            {apis.length ? (
-              apis.map((api) => (
-                <article className={styles.apiCard} key={api.id}>
-                  <label>
-                    <span>名称</span>
-                    <input value={api.name} onBlur={() => saveApi(api)} onChange={(event) => updateApiLocal(api.id, { name: event.target.value })} />
-                  </label>
-                  <label>
-                    <span>API Base URL</span>
-                    <input value={api.baseUrl} onBlur={() => saveApi(api)} onChange={(event) => updateApiLocal(api.id, { baseUrl: event.target.value })} />
-                  </label>
-                  <label>
-                    <span>API Key</span>
-                    <input
-                      type="password"
-                      value={api.apiKey}
-                      placeholder="sk-..."
-                      onBlur={() => saveApi(api)}
-                      onChange={(event) => updateApiLocal(api.id, { apiKey: event.target.value })}
-                    />
-                  </label>
-                  <div className={styles.apiActions}>
-                    <button className={styles.toggleButton} onClick={() => toggleApi(api)}>
-                      {api.enabled ? '已启用' : '已停用'}
-                    </button>
-                    <button className={styles.smallButton} onClick={() => fetchModels(api)}>
-                      {loadingModels === api.id ? <Loader2 className={styles.spin} size={14} /> : <RefreshCw size={14} />}
-                      获取模型
-                    </button>
-                    <button className={styles.iconButton} onClick={() => removeApi(api.id)} aria-label="删除 API">
-                      <Trash2 size={15} />
-                    </button>
-                  </div>
-                  <small className={styles.keyHint}>Key: {maskKey(api.apiKey)}</small>
-                </article>
-              ))
-            ) : (
-              <p className={styles.empty}>数据库中还没有 API。点击“添加 API”创建第一条配置。</p>
-            )}
+          <div className={styles.tableWrap}>
+            <table className={styles.channelTable}>
+              <thead>
+                <tr>
+                  <th aria-label="展开" />
+                  <th>名称</th>
+                  <th>渠道地址</th>
+                  <th>状态</th>
+                  <th>支持的模型</th>
+                  <th>健康状态</th>
+                  <th>创建时间</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                {modelGroups.map((group) => {
+                  const api = group.channel;
+                  const expanded = expandedModelChannels[api.id] ?? true;
+                  const visibleModels = group.models.slice(0, 4);
+
+                  return (
+                    <Fragment key={api.id}>
+                      <tr className={styles.channelRow}>
+                        <td>
+                          <button className={styles.disclosureButton} onClick={() => toggleModelChannel(api.id)} aria-label={`${expanded ? '收起' : '展开'} ${api.name}`}>
+                            {expanded ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
+                          </button>
+                        </td>
+                        <td>
+                          <div className={styles.channelNameCell}>
+                            <strong>{api.name}</strong>
+                            <span>密钥 {maskKey(api.apiKey)}</span>
+                          </div>
+                        </td>
+                        <td>
+                          <span className={styles.mutedText}>{shortUrl(api.baseUrl)}</span>
+                        </td>
+                        <td>
+                          <button
+                            className={`${styles.switchButton} ${api.enabled ? styles.switchButtonOn : ''}`}
+                            onClick={() => toggleApi(api)}
+                            aria-pressed={api.enabled}
+                          >
+                            <span />
+                          </button>
+                        </td>
+                        <td>
+                          <div className={styles.modelChips}>
+                            {visibleModels.length ? (
+                              visibleModels.map((model) => (
+                                <span className={styles.modelChip} key={model.id}>
+                                  {model.name}
+                                </span>
+                              ))
+                            ) : (
+                              <span className={styles.mutedText}>暂无模型</span>
+                            )}
+                            {group.models.length > visibleModels.length ? <span className={styles.modelChip}>+{group.models.length - visibleModels.length}</span> : null}
+                          </div>
+                        </td>
+                        <td>
+                          <div className={styles.healthBars} aria-label={`${api.name} 健康状态`}>
+                            {Array.from({ length: 14 }).map((_, item) => (
+                              <span className={item < (api.enabled ? 11 : 3) ? styles.healthBarActive : ''} key={item} />
+                            ))}
+                          </div>
+                        </td>
+                        <td>{formatDate(api.createdAt)}</td>
+                        <td>
+                          <div className={styles.rowActions}>
+                            <button className={styles.iconButton} onClick={() => fetchModels(api)} aria-label="获取模型">
+                              {loadingModels === api.id ? <Loader2 className={styles.spin} size={15} /> : <RefreshCw size={15} />}
+                            </button>
+                            <button className={styles.iconButton} onClick={() => removeApi(api.id)} aria-label="删除渠道">
+                              <Trash2 size={15} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      {expanded ? (
+                        <tr className={styles.channelDetailRow}>
+                          <td />
+                          <td colSpan={7}>
+                            <div className={styles.channelEditor}>
+                              <label>
+                                <span>渠道名称</span>
+                                <input value={api.name} onBlur={() => saveApi(api)} onChange={(event) => updateApiLocal(api.id, { name: event.target.value })} />
+                              </label>
+                              <label>
+                                <span>渠道地址</span>
+                                <input value={api.baseUrl} onBlur={() => saveApi(api)} onChange={(event) => updateApiLocal(api.id, { baseUrl: event.target.value })} />
+                              </label>
+                              <label>
+                                <span>渠道密钥</span>
+                                <input
+                                  type="password"
+                                  value={api.apiKey}
+                                  placeholder="sk-..."
+                                  onBlur={() => saveApi(api)}
+                                  onChange={(event) => updateApiLocal(api.id, { apiKey: event.target.value })}
+                                />
+                              </label>
+                              <small>已启用模型 {group.enabledModelCount} 个 · 更新时间 {formatDate(api.updatedAt)}</small>
+                            </div>
+                          </td>
+                        </tr>
+                      ) : null}
+                    </Fragment>
+                  );
+                })}
+              </tbody>
+            </table>
+            {!apis.length ? <p className={styles.empty}>数据库中还没有渠道。点击“添加渠道”创建第一条配置。</p> : null}
           </div>
         </section>
 
@@ -621,7 +713,7 @@ export function ModelTester() {
             <h2>模型配置</h2>
             <div className={styles.inlineControls}>
               <select value={activeApiId} onChange={(event) => setActiveApiId(event.target.value)}>
-                <option value="">选择 API</option>
+                <option value="">选择渠道</option>
                 {apis.map((api) => (
                   <option key={api.id} value={api.id}>
                     {api.name}
@@ -634,26 +726,78 @@ export function ModelTester() {
               </button>
             </div>
           </div>
-          <div className={styles.modelList}>
-            {models.length ? (
-              models.map((model) => {
-                const api = apis.find((item) => item.id === model.apiId);
-                return (
-                  <label className={styles.modelItem} key={model.id}>
-                    <input checked={model.enabled} type="checkbox" onChange={(event) => updateModel(model, { enabled: event.target.checked })} />
-                    <span>
-                      <strong>{model.name}</strong>
-                      <small>{api?.name ?? 'Unknown API'} · context {formatNumber(model.context)}</small>
-                    </span>
-                    <button type="button" className={styles.iconButton} onClick={() => removeModel(model.id)} aria-label="删除模型">
-                      <Trash2 size={14} />
-                    </button>
-                  </label>
-                );
-              })
-            ) : (
-              <p className={styles.empty}>数据库中还没有模型。可以先获取模型，或手动添加模型 ID。</p>
-            )}
+          <div className={styles.tableWrap}>
+            <table className={styles.modelTable}>
+              <thead>
+                <tr>
+                  <th aria-label="展开" />
+                  <th>渠道</th>
+                  <th>状态</th>
+                  <th>模型数量</th>
+                  <th>上下文</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                {modelGroups.map((group) => {
+                  const expanded = expandedModelChannels[group.channel.id] ?? true;
+
+                  return (
+                    <Fragment key={group.channel.id}>
+                      <tr className={styles.channelRow}>
+                        <td>
+                          <button
+                            className={styles.disclosureButton}
+                            onClick={() => toggleModelChannel(group.channel.id)}
+                            aria-label={`${expanded ? '收起' : '展开'} ${group.channel.name} 模型`}
+                          >
+                            {expanded ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
+                          </button>
+                        </td>
+                        <td>
+                          <div className={styles.channelNameCell}>
+                            <strong>{group.channel.name}</strong>
+                            <span>{shortUrl(group.channel.baseUrl)}</span>
+                          </div>
+                        </td>
+                        <td>{group.channel.enabled ? <span className={styles.statusPill}>已启用</span> : <span className={styles.statusPillMuted}>已停用</span>}</td>
+                        <td>
+                          {group.enabledModelCount} / {group.models.length}
+                        </td>
+                        <td>{group.models.length ? formatNumber(Math.max(...group.models.map((model) => model.context))) : '--'}</td>
+                        <td>
+                          <button className={styles.smallButton} onClick={() => fetchModels(group.channel)}>
+                            {loadingModels === group.channel.id ? <Loader2 className={styles.spin} size={14} /> : <RefreshCw size={14} />}
+                            同步
+                          </button>
+                        </td>
+                      </tr>
+                      {expanded
+                        ? group.models.map((model) => (
+                            <tr className={styles.modelChildRow} key={model.id}>
+                              <td />
+                              <td colSpan={2}>
+                                <label className={styles.modelToggle}>
+                                  <input checked={model.enabled} type="checkbox" onChange={(event) => updateModel(model, { enabled: event.target.checked })} />
+                                  <span>{model.name}</span>
+                                </label>
+                              </td>
+                              <td>{model.enabled ? '启用' : '停用'}</td>
+                              <td>{formatNumber(model.context)}</td>
+                              <td>
+                                <button type="button" className={styles.iconButton} onClick={() => removeModel(model.id)} aria-label="删除模型">
+                                  <Trash2 size={14} />
+                                </button>
+                              </td>
+                            </tr>
+                          ))
+                        : null}
+                    </Fragment>
+                  );
+                })}
+              </tbody>
+            </table>
+            {!models.length ? <p className={styles.empty}>数据库中还没有模型。可以先获取模型，或手动添加模型 ID。</p> : null}
           </div>
         </section>
 
@@ -703,38 +847,91 @@ export function ModelTester() {
 
         <section id="结果详情" className={styles.panel}>
           <div className={styles.panelTitle}>
-            <h2>每个 API / 模型测试结果</h2>
+            <h2>渠道 / 模型测试结果</h2>
             <TerminalSquare size={17} />
           </div>
           <div className={styles.tableWrap}>
-            <table>
+            <table className={styles.resultTable}>
               <thead>
                 <tr>
+                  <th aria-label="展开" />
                   <th>状态</th>
-                  <th>API</th>
-                  <th>模型</th>
+                  <th>渠道 / 模型</th>
+                  <th>测试次数</th>
+                  <th>成功率</th>
                   <th>延迟</th>
                   <th>Token</th>
-                  <th>状态码</th>
+                  <th>最近测试</th>
                   <th>详情</th>
                 </tr>
               </thead>
               <tbody>
-                {results.map((item) => (
-                  <tr key={item.id}>
-                    <td>{item.ok ? <CheckCircle2 className={styles.ok} size={17} /> : <XCircle className={styles.fail} size={17} />}</td>
-                    <td>{item.apiName}</td>
-                    <td>{item.model}</td>
-                    <td>{item.latencyMs} ms</td>
-                    <td>{formatNumber(item.totalTokens)}</td>
-                    <td>{item.statusCode ?? '--'}</td>
-                    <td>
-                      <button className={styles.smallButton} onClick={() => setSelected(item)}>
-                        查看
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {resultGroups.map((group) => {
+                  const expanded = expandedResultChannels[group.channelId] ?? true;
+                  const successRate = group.attemptCount ? Math.round((group.successCount / group.attemptCount) * 100) : 0;
+
+                  return (
+                    <Fragment key={group.channelId}>
+                      <tr className={styles.channelRow}>
+                        <td>
+                          <button
+                            className={styles.disclosureButton}
+                            onClick={() => toggleResultChannel(group.channelId)}
+                            aria-label={`${expanded ? '收起' : '展开'} ${group.channelName} 测试结果`}
+                          >
+                            {expanded ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
+                          </button>
+                        </td>
+                        <td>{group.successCount === group.attemptCount ? <CheckCircle2 className={styles.ok} size={17} /> : <XCircle className={styles.fail} size={17} />}</td>
+                        <td>
+                          <div className={styles.channelNameCell}>
+                            <strong>{group.channelName}</strong>
+                            <span>{group.models.length} 个模型已合并</span>
+                          </div>
+                        </td>
+                        <td>{group.attemptCount}</td>
+                        <td>{successRate}%</td>
+                        <td>{group.avgLatencyMs} ms</td>
+                        <td>{formatNumber(group.totalTokens)}</td>
+                        <td>{formatDate(group.latestResult.createdAt)}</td>
+                        <td>
+                          <button className={styles.smallButton} onClick={() => setSelected(group.latestResult)}>
+                            查看最近
+                          </button>
+                        </td>
+                      </tr>
+                      {expanded
+                        ? group.models.map((model) => {
+                            const modelSuccessRate = model.attemptCount ? Math.round((model.successCount / model.attemptCount) * 100) : 0;
+
+                            return (
+                              <tr className={styles.modelChildRow} key={`${group.channelId}-${model.model}`}>
+                                <td />
+                                <td>
+                                  {model.successCount === model.attemptCount ? (
+                                    <CheckCircle2 className={styles.ok} size={16} />
+                                  ) : (
+                                    <XCircle className={styles.fail} size={16} />
+                                  )}
+                                </td>
+                                <td>{model.model}</td>
+                                <td>{model.attemptCount}</td>
+                                <td>{modelSuccessRate}%</td>
+                                <td>{model.avgLatencyMs} ms</td>
+                                <td>{formatNumber(model.totalTokens)}</td>
+                                <td>{formatDate(model.latestResult.createdAt)}</td>
+                                <td>
+                                  <button className={styles.smallButton} onClick={() => setSelected(model.latestResult)}>
+                                    查看
+                                  </button>
+                                </td>
+                              </tr>
+                            );
+                          })
+                        : null}
+                    </Fragment>
+                  );
+                })}
               </tbody>
             </table>
             {!results.length ? <p className={styles.empty}>数据库中还没有测试结果。</p> : null}

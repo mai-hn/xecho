@@ -18,7 +18,6 @@ const RootLayout = ({ children }: React.PropsWithChildren) => (
               <a href="#home">&#20027;&#39029;</a>
               <a href="#projects">&#39033;&#30446;</a>
               <a href="#tools">&#24037;&#20855;</a>
-              <a href="#blog">&#21338;&#23458;</a>
               <a href="#about">&#20851;&#20110;</a>
             </nav>
 

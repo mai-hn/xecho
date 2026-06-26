@@ -300,6 +300,7 @@
 }
 
 .apiCard label,
+.channelEditor label,
 .promptBox,
 .configGrid label {
   display: grid;
@@ -307,6 +308,7 @@
 }
 
 .apiCard label span,
+.channelEditor label span,
 .promptBox span,
 .configGrid label span {
   color: #64748b;
@@ -315,6 +317,7 @@
 }
 
 .apiCard input,
+.channelEditor input,
 .inlineControls input,
 .inlineControls select,
 .promptBox textarea,
@@ -331,6 +334,7 @@
 }
 
 .apiCard input,
+.channelEditor input,
 .inlineControls input,
 .inlineControls select,
 .configGrid input {
@@ -339,12 +343,13 @@
 }
 
 .apiCard input:focus,
+.channelEditor input:focus,
 .inlineControls input:focus,
 .inlineControls select:focus,
 .promptBox textarea:focus,
 .configGrid input:focus {
-  border-color: rgba(20, 207, 201, 0.76);
-  box-shadow: 0 0 0 3px rgba(20, 207, 201, 0.12);
+  border-color: rgba(181, 96, 46, 0.68);
+  box-shadow: 0 0 0 3px rgba(181, 96, 46, 0.12);
 }
 
 .inlineControls {
@@ -409,36 +414,238 @@
 
 .tableWrap {
   overflow-x: auto;
+  border: 1px solid rgba(44, 38, 32, 0.1);
+  border-radius: 12px;
+  background: #ffffff;
 }
 
 .tableWrap table {
   width: 100%;
-  min-width: 760px;
+  min-width: 920px;
   border-collapse: collapse;
 }
 
 .tableWrap th,
 .tableWrap td {
-  padding: 13px 12px;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
-  color: #334155;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(44, 38, 32, 0.08);
+  color: #3f3a35;
   font-size: 13px;
   font-weight: 750;
   text-align: left;
+  vertical-align: middle;
 }
 
 .tableWrap th {
-  color: #64748b;
+  color: #5f5851;
   font-size: 12px;
+  font-weight: 900;
+  background: #dfdcd8;
   text-transform: uppercase;
 }
 
+.tableWrap tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.channelTable,
+.resultTable {
+  min-width: 1080px;
+}
+
+.channelRow {
+  background: #ffffff;
+}
+
+.channelRow:hover {
+  background: #fbfaf8;
+}
+
+.modelChildRow {
+  background: #faf9f7;
+}
+
+.modelChildRow td {
+  color: #4b463f;
+  font-size: 12px;
+}
+
+.channelDetailRow td {
+  padding-top: 0;
+  background: #fbfaf8;
+}
+
+.disclosureButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 7px;
+  color: #2d2925;
+  background: transparent;
+  cursor: pointer;
+}
+
+.disclosureButton:hover {
+  background: rgba(181, 96, 46, 0.1);
+}
+
+.channelNameCell {
+  display: grid;
+  gap: 5px;
+}
+
+.channelNameCell strong {
+  color: #25211d;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.channelNameCell span,
+.mutedText {
+  color: #776f67;
+  font-size: 12px;
+  font-weight: 760;
+}
+
+.modelChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  max-width: 420px;
+}
+
+.modelChip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  color: #2b2926;
+  background: #efeeec;
+  font-size: 12px;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.healthBars {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.healthBars span {
+  display: block;
+  width: 5px;
+  height: 28px;
+  border-radius: 999px;
+  background: #e9ecef;
+}
+
+.healthBars .healthBarActive {
+  background: #d8ded7;
+}
+
+.rowActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.switchButton {
+  position: relative;
+  width: 42px;
+  height: 24px;
+  border: 1px solid rgba(181, 96, 46, 0.35);
+  border-radius: 999px;
+  background: #ece7e2;
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease;
+}
+
+.switchButton span {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(44, 38, 32, 0.18);
+  transition: transform 160ms ease;
+}
+
+.switchButtonOn {
+  border-color: #b7602d;
+  background: #b7602d;
+}
+
+.switchButtonOn span {
+  transform: translateX(18px);
+}
+
+.channelEditor {
+  display: grid;
+  grid-template-columns: minmax(160px, 0.7fr) minmax(240px, 1fr) minmax(220px, 0.9fr);
+  gap: 12px;
+  align-items: end;
+  padding: 14px;
+  border: 1px solid rgba(181, 96, 46, 0.16);
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.channelEditor small {
+  grid-column: 1 / -1;
+  color: #8a8178;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.statusPill,
+.statusPillMuted {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.statusPill {
+  color: #11613f;
+  background: #dff7e9;
+}
+
+.statusPillMuted {
+  color: #7c6f65;
+  background: #efeeec;
+}
+
+.modelToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 850;
+}
+
+.modelToggle input {
+  width: 15px;
+  height: 15px;
+  accent-color: #b7602d;
+}
+
 .ok {
-  color: #14b8a6;
+  color: #2f7656;
 }
 
 .fail {
-  color: #0f172a;
+  color: #8a3e22;
 }
 
 .empty {

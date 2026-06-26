@@ -2,14 +2,19 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlmodel import Session
 
-from project.model_test.database import init_db
+from project.model_test.database import engine, init_db
 from project.model_test.router import router as model_test_router
+from project.site_content.router import router as site_content_router
+from project.site_content.seed import seed_site_content
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     init_db()
+    with Session(engine) as session:
+        seed_site_content(session)
     yield
 
 
@@ -24,6 +29,7 @@ app.add_middleware(
 )
 
 app.include_router(model_test_router)
+app.include_router(site_content_router)
 
 
 @app.get("/health")

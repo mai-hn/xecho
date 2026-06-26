@@ -44,12 +44,28 @@
   line-height: 1.8;
 }
 
+.notice {
+  margin: 34px 0 0;
+  padding: 16px;
+  border: 1px dashed rgba(15, 23, 42, 0.16);
+  border-radius: 10px;
+  color: rgba(15, 23, 42, 0.62);
+  background: rgba(248, 250, 252, 0.74);
+  font-size: 14px;
+  font-weight: 750;
+}
+
+.cardList {
+  display: grid;
+  gap: 14px;
+  margin-top: 34px;
+}
+
 .card {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 18px;
-  margin-top: 34px;
   padding: 18px;
   border: 1px solid rgba(15, 23, 42, 0.1);
   border-radius: 10px;
