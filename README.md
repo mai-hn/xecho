@@ -1,77 +1,77 @@
 # xEcho
 
-xEcho is a modern personal website and project lab built with Next.js. It includes a white, technology-focused landing page, animated particle-ray hero, project and tool sections, and a model testing console for OpenAI-compatible APIs.
+xEcho 是一个基于 Next.js 构建的现代个人网站和项目实验室。它包含白色科技感首页、粒子射线 Hero 动画、项目和工具展示区，以及一个用于 OpenAI 兼容接口的模型测试控制台。
 
-## Features
+## 功能
 
-- Personal homepage with modern white tech visual style
-- Canvas particle-ray animation hero
-- shadcn-style UI utilities and responsive layouts
-- Motion-powered reveal animations
-- Magic UI globe visual
-- `/projects` project index page
-- `/projects/model-test` model testing console
-- FastAPI backend with SQLModel and SQLite persistence
-- ECharts dashboards for latency, status, and token usage
+- 现代白色科技风格个人主页
+- Canvas 粒子射线 Hero 动画
+- shadcn 风格 UI 工具和响应式布局
+- 基于 Motion 的进入动画
+- Magic UI globe 视觉组件
+- `/projects` 项目索引页
+- `/projects/model-test` 模型测试控制台
+- 使用 SQLModel 和 SQLite 持久化的 FastAPI 后端
+- 用于延迟、状态和 token 用量展示的 ECharts 仪表图
 
-## Tech Stack
+## 技术栈
 
-- Frontend: Next.js 16, React 19, TypeScript
-- Styling: Tailwind CSS v4, CSS Modules, shadcn, Magic UI
-- Motion and visuals: `motion`, ECharts, canvas
-- Backend: FastAPI, SQLModel, SQLite, httpx
-- Python runtime: `uv`
+- 前端：Next.js 16、React 19、TypeScript
+- 样式：Tailwind CSS v4、CSS Modules、shadcn、Magic UI
+- 动效和视觉：`motion`、ECharts、canvas
+- 后端：FastAPI、SQLModel、SQLite、httpx
+- Python 运行时：`uv`
 
-## Routes
+## 路由
 
-- `/` - personal homepage
-- `/projects` - project index
-- `/projects/model-test` - model testing console
+- `/` - 个人主页
+- `/projects` - 项目索引
+- `/projects/model-test` - 模型测试控制台
 
-## Model Testing Console
+## 模型测试控制台
 
-The model testing console supports:
+模型测试控制台支持：
 
-- Add, edit, enable, disable, and delete OpenAI-compatible API configurations
-- Store API base URLs and API keys in the backend SQLite database
-- Fetch models from an OpenAI-compatible `/models` endpoint
-- Manually add models
-- Enable or disable models
-- Configure test input, max tokens, temperature, global concurrency, and per-API concurrency
-- Run batch tests against enabled models
-- Persist test results in the database
-- View latency, status, and token charts
-- Open request and response details for each result
+- 添加、编辑、启用、停用和删除 OpenAI 兼容 API 配置
+- 在后端 SQLite 数据库中保存 API base URL 和 API key
+- 从 OpenAI 兼容的 `/models` 端点拉取模型列表
+- 手动添加模型
+- 启用或停用模型
+- 配置测试输入、max tokens、temperature、全局并发和单 API 并发限制
+- 对启用的模型运行批量测试
+- 将测试结果持久化到数据库
+- 查看延迟、状态和 token 图表
+- 打开每条结果的请求和响应详情
 
-The frontend does not ship default API/model/result data. It reads state from the backend database through:
+前端不会内置默认 API、模型或测试结果数据。它会通过后端数据库读取状态：
 
 ```text
 GET /project/model-test/state
 ```
 
-## Getting Started
+## 本地启动
 
-Install frontend dependencies:
+安装前端依赖：
 
 ```bash
 npm install
 ```
 
-Run the Next.js app:
+运行 Next.js 应用：
 
 ```bash
 npm run dev
 ```
 
-Open:
+打开：
 
 ```text
 http://localhost:3000
 ```
 
-## Backend Setup
+## 后端启动
 
-The backend lives in `backend/` and uses `uv`.
+后端位于 `backend/`，使用 `uv` 管理运行环境。
 
 ```bash
 cd backend
@@ -79,41 +79,45 @@ uv sync
 uv run uvicorn main:app --reload --port 8000
 ```
 
-Health check:
+健康检查：
 
 ```text
 http://localhost:8000/health
 ```
 
-The SQLite database is created automatically at:
+SQLite 数据库会自动创建在：
 
 ```text
 backend/data/model_test.db
 ```
 
-Local database files are ignored by git.
+本地数据库文件已被 git 忽略。
 
-## Environment Variables
+## 环境变量
 
-In development, the frontend calls the backend at `http://localhost:8000` by default.
+开发环境下，前端默认请求后端地址：
 
-Override it with:
+```text
+http://localhost:8000
+```
+
+可以通过下面的变量覆盖：
 
 ```bash
 NEXT_PUBLIC_MODEL_TEST_API=http://localhost:8000
 ```
 
-In the Docker deployment, frontend API requests use same-origin paths and are proxied by the Next.js server to the FastAPI process inside the same container.
+Docker 部署中，前端 API 请求使用同源路径，并由 Next.js 服务代理到同一个容器内的 FastAPI 进程。
 
-## Backend API
+## 后端 API
 
-Model test API prefix:
+模型测试 API 前缀：
 
 ```text
 /project/model-test
 ```
 
-Endpoints:
+接口列表：
 
 - `GET /project/model-test/state`
 - `POST /project/model-test/apis`
@@ -126,23 +130,23 @@ Endpoints:
 - `POST /project/model-test/tests/batch`
 - `DELETE /project/model-test/results`
 
-## OpenAI-Compatible API Notes
+## OpenAI 兼容 API 说明
 
-Use a base URL like:
+Base URL 推荐填写根地址，例如：
 
 ```text
 https://api.openai.com/v1
 ```
 
-Do not use the full models endpoint as the base URL:
+不要填写完整的 models 端点：
 
 ```text
 https://api.openai.com/v1/models
 ```
 
-The backend is tolerant of accidental `/models` suffixes, but the root `/v1` style is recommended.
+后端会尽量兼容误填 `/models` 后缀的情况，但仍建议使用 `/v1` 这类根地址。
 
-## Scripts
+## 脚本
 
 ```bash
 npm run dev
@@ -151,18 +155,18 @@ npm run start
 npm run lint
 ```
 
-## Deployment
+## 部署
 
-Docker + GHCR deployment instructions are in [DEPLOY.md](DEPLOY.md).
+Docker + GHCR 部署说明见 [DEPLOY.md](DEPLOY.md)。
 
-Backend validation:
+后端校验：
 
 ```bash
 cd backend
 uv run python -m compileall main.py project
 ```
 
-## Project Structure
+## 项目结构
 
 ```text
 app/
@@ -187,8 +191,8 @@ components/
 lib/
 ```
 
-## Notes
+## 说明
 
-- The global header is shared from `app/layout.tsx`.
-- The model test implementation uses `backend/project/model_test` because Python packages cannot contain hyphens.
-- The HTTP route remains `/project/model-test`.
+- 全局顶部导航由 `app/layout.tsx` 共享。
+- 模型测试实现放在 `backend/project/model_test`，因为 Python 包名不能包含连字符。
+- HTTP 路由仍然保持为 `/project/model-test`。
