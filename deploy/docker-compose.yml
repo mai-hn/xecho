@@ -1,0 +1,19 @@
+services:
+  xecho:
+    image: ${IMAGE}:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+      API_HOST: 127.0.0.1
+      API_PORT: 8000
+      DATABASE_URL: ${DATABASE_URL:-sqlite:////data/model_test.db}
+      CORS_ALLOW_ORIGINS: ${CORS_ALLOW_ORIGINS:-http://localhost:3000}
+    volumes:
+      - xecho-data:/data
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+
+volumes:
+  xecho-data:

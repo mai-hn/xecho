@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+import os
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -20,9 +21,17 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(title="xEcho API", version="0.1.0", lifespan=lifespan)
 
+
+def parse_cors_origins() -> list[str]:
+    raw_origins = os.getenv("CORS_ALLOW_ORIGINS")
+    if not raw_origins:
+        return ["http://localhost:3000", "http://127.0.0.1:3000"]
+    return [origin.strip().rstrip("/") for origin in raw_origins.split(",") if origin.strip()]
+
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=parse_cors_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

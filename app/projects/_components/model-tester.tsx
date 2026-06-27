@@ -79,7 +79,8 @@ type BackendState = {
   results: BackendResult[];
 };
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_MODEL_TEST_API ?? 'http://localhost:8000';
+const DEFAULT_BACKEND_URL = process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : '';
+const BACKEND_URL = process.env.NEXT_PUBLIC_MODEL_TEST_API ?? DEFAULT_BACKEND_URL;
 const API_PREFIX = `${BACKEND_URL}/project/model-test`;
 
 function toApi(api: BackendApi): ApiConfig {

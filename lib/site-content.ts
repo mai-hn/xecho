@@ -25,7 +25,9 @@ export type SiteContent = {
   tools: SiteTool[];
 };
 
-export const SITE_API_URL = process.env.NEXT_PUBLIC_SITE_API ?? process.env.NEXT_PUBLIC_MODEL_TEST_API ?? 'http://localhost:8000';
+const DEFAULT_SITE_API_URL = process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : '';
+
+export const SITE_API_URL = process.env.NEXT_PUBLIC_SITE_API ?? process.env.NEXT_PUBLIC_MODEL_TEST_API ?? DEFAULT_SITE_API_URL;
 
 export async function fetchSiteContent(signal?: AbortSignal): Promise<SiteContent> {
   const response = await fetch(`${SITE_API_URL}/site/content`, { signal });

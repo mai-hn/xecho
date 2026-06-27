@@ -95,13 +95,15 @@ Local database files are ignored by git.
 
 ## Environment Variables
 
-The frontend calls the backend at `http://localhost:8000` by default.
+In development, the frontend calls the backend at `http://localhost:8000` by default.
 
 Override it with:
 
 ```bash
 NEXT_PUBLIC_MODEL_TEST_API=http://localhost:8000
 ```
+
+In the Docker deployment, frontend API requests use same-origin paths and are proxied by the Next.js server to the FastAPI process inside the same container.
 
 ## Backend API
 
@@ -148,6 +150,10 @@ npm run build
 npm run start
 npm run lint
 ```
+
+## Deployment
+
+Docker + GHCR deployment instructions are in [DEPLOY.md](DEPLOY.md).
 
 Backend validation:
 
